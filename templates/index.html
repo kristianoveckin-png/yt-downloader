@@ -3,23 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Video Downloader</title>
-    <!-- Эта строка подключает иконку -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; }
-        .container { text-align: center; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input { width: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 20px; background: #ff0000; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .container { text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; }
+        h1 { color: #333; margin-bottom: 20px; }
+        input { width: 80%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; }
+        input:focus { border-color: #ff0000; }
+        button { padding: 12px 25px; background: #ff0000; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; }
         button:hover { background: #cc0000; }
+        .platforms { margin-top: 30px; font-size: 14px; color: #666; }
+        .platforms span { display: inline-block; background: #eee; padding: 5px 10px; margin: 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Скачать видео</h1>
-        <form action="/download" method="post">
+        <form action="/analyze" method="post">
             <input type="text" name="url" placeholder="Вставьте ссылку на видео..." required>
-            <button type="submit">Скачать</button>
+            <br>
+            <button type="submit">Проверить качество</button>
         </form>
+        <div class="platforms">
+            <p>Поддерживаемые платформы:</p>
+            <span>YouTube</span> <span>VK</span> <span>Rutube</span> <span>Dzen</span> <span>TikTok</span> <span>OK.ru</span>
+        </div>
     </div>
 </body>
 </html>
