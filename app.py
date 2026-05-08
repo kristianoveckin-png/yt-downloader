@@ -70,30 +70,5 @@ def download():
     except Exception as e:
         return f"Ошибка при скачивании: {e}"
 
-# НОВАЯ ФУНКЦИЯ: Скачивание только аудио (MP3)
-@app.route('/download_audio', methods=['POST'])
-def download_audio():
-    url = request.form.get('url')
-    
-    ydl_opts = {
-        'format': 'bestaudio/best', # Берем лучшее аудио
-        'outtmpl': '/tmp/%(title)s.%(ext)s',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    }
-
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            # Поскольку мы конвертируем в mp3, расширение меняется
-            filename = ydl.prepare_filename(info).rsplit('.', 1)[0] + '.mp3'
-            return send_file(filename, as_attachment=True)
-    except Exception as e:
-        return f"Ошибка при скачивании музыки: {e}"
-
 if __name__ == '__main__':
     app.run(debug=True)
