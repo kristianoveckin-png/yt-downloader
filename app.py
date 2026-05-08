@@ -13,14 +13,15 @@ def download():
     video_url = request.form.get('url')
     
     # Настройки для yt-dlp
+    # ВАЖНО: Используем /tmp/, так как Render позволяет писать только туда
     ydl_opts = {
-        'format': 'best', # Скачивать лучшее доступное качество
-        'outtmpl': '/tmp/%(title)s.%(ext)s', # Папка для временного хранения
+        'format': 'best', 
+        'outtmpl': '/tmp/%(title)s.%(ext)s', 
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # Извлекаем информацию о видео
+            # Извлекаем информацию и скачиваем файл во временную папку /tmp/
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
             
@@ -30,7 +31,5 @@ def download():
         return f"Ошибка при скачивании: {e}"
 
 if __name__ == '__main__':
-    # Создаем папку downloads, если её нет
-    if not os.path.exists('downloads'):
-        os.makedirs('downloads')
+    # На локальном компьютере запустится на 5000 порту
     app.run(debug=True)
