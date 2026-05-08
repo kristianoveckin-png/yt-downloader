@@ -6,14 +6,21 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
-        .container { text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px; }
+        .container { text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 600px; }
         h1 { color: #333; margin-bottom: 20px; }
         input { width: 80%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; }
         input:focus { border-color: #ff0000; }
         button { padding: 12px 25px; background: #ff0000; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; }
         button:hover { background: #cc0000; }
-        .platforms { margin-top: 30px; font-size: 14px; color: #666; }
-        .platforms span { display: inline-block; background: #eee; padding: 5px 10px; margin: 5px; border-radius: 5px; }
+        
+        .platforms-section { margin-top: 30px; text-align: left; border-top: 1px solid #eee; padding-top: 20px; }
+        .platforms-section p { font-weight: bold; color: #444; margin-bottom: 10px; text-align: center; }
+        
+        .category { margin-bottom: 15px; }
+        .category-title { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tag { background: #f1f3f5; color: #555; padding: 4px 10px; border-radius: 6px; font-size: 13px; border: 1px solid #e1e4e8; transition: all 0.2s; }
+        .tag:hover { background: #e2e6ea; color: #000; border-color: #ccc; }
     </style>
 </head>
 <body>
@@ -24,9 +31,39 @@
             <br>
             <button type="submit">Проверить качество</button>
         </form>
-        <div class="platforms">
+
+        <div class="platforms-section">
             <p>Поддерживаемые платформы:</p>
-            <span>YouTube</span> <span>VK</span> <span>Rutube</span> <span>Dzen</span> <span>TikTok</span> <span>OK.ru</span>
+            
+            <div class="category">
+                <span class="category-title">СНГ Сервисы</span>
+                <div class="tags">
+                    <span class="tag">VK</span>
+                    <span class="tag">Rutube</span>
+                    <span class="tag">Дзен</span>
+                    <span class="tag">OK.ru</span>
+                </div>
+            </div>
+
+            <div class="category">
+                <span class="category-title">Мировые соцсети</span>
+                <div class="tags">
+                    <span class="tag">YouTube</span>
+                    <span class="tag">TikTok</span>
+                    <span class="tag">Instagram</span>
+                    <span class="tag">Facebook</span>
+                    <span class="tag">Twitter (X)</span>
+                </div>
+            </div>
+
+            <div class="category">
+                <span class="category-title">Видеохостинги</span>
+                <div class="tags">
+                    <span class="tag">Vimeo</span>
+                    <span class="tag">DailyMotion</span>
+                    <span class="tag">Twitch</span>
+                </div>
+            </div>
         </div>
     </div>
 </body>
