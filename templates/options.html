@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Выбор качества</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/png">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .container { text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 600px; }
+        h2 { color: #333; margin-bottom: 10px; }
+        .video-title { color: #666; font-size: 14px; margin-bottom: 20px; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background-color: #f8f8f8; }
+        .btn-download { padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 14px; }
+        .btn-download:hover { background: #218838; }
+        .btn-back { display: inline-block; margin-top: 20px; text-decoration: none; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Выберите качество</h2>
+        <div class="video-title">{{ title }}</div>
+        
+        <form action="/download" method="post">
+            <input type="hidden" name="url" value="{{ url }}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Качество</th>
+                        <th>Формат</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in formats %}
+                    <tr>
+                        <td>{{ f.resolution }}</td>
+                        <td>{{ f.ext }}</td>
+                        <td>
+                            <button type="submit" name="format_id" value="{{ f.format_id }}" class="btn-download">Скачать</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+        <a href="/" class="btn-back">← Вернуться назад</a>
+    </div>
+</body>
+</html>
