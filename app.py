@@ -15,7 +15,7 @@ def download():
     # Настройки для yt-dlp
     ydl_opts = {
         'format': 'best', # Скачивать лучшее доступное качество
-        'outtmpl': 'downloads/%(title)s.%(ext)s', # Папка для временного хранения
+        'outtmpl': '/tmp/%(title)s.%(ext)s', # Папка для временного хранения
     }
 
     try:
