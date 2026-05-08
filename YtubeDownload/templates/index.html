@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Downloader</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; }
+        .container { text-align: center; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input { width: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background: #ff0000; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #cc0000; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Скачать видео</h1>
+        <form action="/download" method="post">
+            <input type="text" name="url" placeholder="Вставьте ссылку на видео..." required>
+            <button type="submit">Скачать</button>
+        </form>
+    </div>
+</body>
+</html>
