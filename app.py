@@ -12,23 +12,25 @@ def favicon():
 def index():
     return render_template('index.html')
 
-# Эта страница анализирует ссылку и показывает доступные форматы
 @app.route('/analyze', methods=['POST'])
 def analyze():
     url = request.form.get('url')
     if not url:
         return redirect(url_for('index'))
 
-    ydl_opts = {'quiet': True}
+    # Добавляем маскировку под реальный браузер
+    ydl_opts = {
+        'quiet': True,
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'referer': 'https://www.google.com/',
+    }
+    
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             formats = []
             
-            # Собираем только те форматы, где есть и видео, и аудио вместе (для простоты)
-            # или лучшие доступные варианты
             for f in info.get('formats', []):
-                # Фильтруем: нам нужны форматы с видео, аудио и расширением mp4
                 if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('ext') == 'mp4':
                     formats.append({
                         'format_id': f.get('format_id'),
@@ -36,7 +38,6 @@ def analyze():
                         'ext': f.get('ext')
                     })
             
-            # Если ничего не нашли в mp4, берем вообще всё, что есть
             if not formats:
                 for f in info.get('formats', []):
                     if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
@@ -48,17 +49,19 @@ def analyze():
 
             return render_template('options.html', url=url, formats=formats, title=info.get('title'))
     except Exception as e:
-        return f"Ошибка при анализе видео: {e}"
+        return f"Ошибка при анализе видео: {e}. YouTube может блокировать запросы с облачного сервера."
 
-# Эта функция скачивает выбранное качество
 @app.route('/download', methods=['POST'])
 def download():
     url = request.form.get('url')
     format_id = request.form.get('format_id')
     
+    # Та же маскировка для самого скачивания
     ydl_opts = {
         'format': format_id,
         'outtmpl': '/tmp/%(title)s.%(ext)s',
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'referer': 'https://www.google.com/',
     }
 
     try:
