@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Выбор качества</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
@@ -14,7 +15,6 @@
             --accent-hover: #218838;
         }
 
-        /* Тема подхватывается из браузера или настроек */
         [data-theme="dark"] {
             --bg-color: #18191a;
             --container-bg: #242526;
@@ -24,50 +24,95 @@
             --accent-hover: #2eb84d;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; }
-        .container { text-align: center; background: var(--container-bg); padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 90%; max-width: 600px; transition: background 0.3s; }
-        h2 { color: var(--text-color); margin-bottom: 10px; }
-        .video-title { color: #888; font-size: 14px; margin-bottom: 25px; font-style: italic; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; padding: 20px; box-sizing: border-box; }
+        .container { text-align: center; background: var(--container-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; transition: background 0.3s; box-sizing: border-box; }
+        h2 { color: var(--text-color); margin-bottom: 10px; font-size: clamp(20px, 5vw, 24px); }
+        .video-title { color: #888; font-size: 14px; margin-bottom: 25px; font-style: italic; word-wrap: break-word; }
         
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 300px; }
         th, td { padding: 12px; border-bottom: 1px solid var(--input-border); text-align: left; }
         th { background-color: var(--platform-bg, #f8f8f8); color: var(--text-color); }
         
         .btn-download { padding: 8px 15px; background: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s; font-size: 14px; font-weight: bold; }
-        .btn-download:hover { background: var(--accent-hover); transform: scale(1.05); box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); }
+        .btn-download:hover { background: var(--accent-hover); transform: scale(1.05); }
+        
+        /* Анимация скачивания */
+        #download-loader { display: none; margin: 20px auto; text-align: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .progress-bar { width: 100%; background: var(--platform-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { width: 0%; height: 100%; background: var(--accent-color); transition: width 0.2s; }
+        #progress-text { font-size: 14px; color: var(--text-color); margin-top: 5px; display: block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         .btn-back { display: inline-block; margin-top: 20px; text-decoration: none; color: #888; font-size: 14px; transition: 0.3s; }
         .btn-back:hover { color: var(--text-color); }
     </style>
 </head>
-<body>
+<body data-theme="light"> <!-- По умолчанию светлая -->
     <div class="container">
         <h2>Выберите качество</h2>
         <div class="video-title">{{ title }}</div>
         
+        <div id="download-loader">
+            <div class="spinner"></div>
+            <span id="progress-text">Загрузка на сервер: 0%</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
         <form action="/download" method="post" id="downloadForm">
             <input type="hidden" name="url" value="{{ url }}">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Качество</th>
-                        <th>Формат</th>
-                        <th>Действие</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for f in formats %}
-                    <tr>
-                        <td>{{ f.resolution }}</td>
-                        <td>{{ f.ext }}</td>
-                        <td>
-                            <button type="submit" name="format_id" value="{{ f.format_id }}" class="btn-download">Скачать</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Качество</th>
+                            <th>Формат</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in formats %}
+                        <tr>
+                            <td>{{ f.resolution }}</td>
+                            <td>{{ f.ext }}</td>
+                            <td>
+                                <button type="submit" name="format_id" value="{{ f.format_id }}" class="btn-download">Скачать</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </form>
         <a href="/" class="btn-back">← Вернуться назад</a>
     </div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const loader = document.getElementById('download-loader');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+
+        form.onsubmit = function() {
+            // Скрываем таблицу и показываем загрузку
+            form.style.display = 'none';
+            loader.style.display = 'block';
+            
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 98) {
+                    clearInterval(interval);
+                } else {
+                    width += Math.random() * 3;
+                    if (width > 98) width = 98;
+                    progressFill.style.width = width + '%';
+                    progressText.innerText = `Загрузка на сервер: ${Math.round(width)}%`;
+                }
+            }, 150);
+        };
+    </script>
 </body>
 </html>
