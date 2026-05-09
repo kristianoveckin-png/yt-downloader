@@ -2,10 +2,10 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Downloader</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
-        /* Переменные для тем */
         :root {
             --bg-color: #f0f2f5;
             --container-bg: #ffffff;
@@ -28,31 +28,32 @@
             --platform-text: #b0b3b8;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; padding: 20px; box-sizing: border-box; }
         
-        /* Переключатель темы */
-        .theme-switch { position: absolute; top: 20px; right: 20px; cursor: pointer; background: var(--container-bg); border: 2px solid var(--accent-color); padding: 10px; border-radius: 50px; font-size: 20px; transition: 0.3s; }
-        .theme-switch:hover { transform: scale(1.1); }
+        .theme-switch { position: absolute; top: 20px; right: 20px; cursor: pointer; background: var(--container-bg); border: 2px solid var(--accent-color); padding: 10px; border-radius: 50px; font-size: 20px; transition: 0.3s; z-index: 10; }
 
-        .container { text-align: center; background: var(--container-bg); padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 90%; max-width: 600px; transition: background 0.3s; }
-        h1 { color: var(--text-color); margin-bottom: 20px; }
-        input { width: 80%; padding: 12px; border: 2px solid var(--input-border); border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; background: var(--container-bg); color: var(--text-color); }
+        .container { text-align: center; background: var(--container-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; transition: background 0.3s; box-sizing: border-box; }
+        h1 { color: var(--text-color); margin-bottom: 20px; font-size: clamp(24px, 5vw, 32px); }
+        
+        input { width: 100%; max-width: 400px; padding: 12px; border: 2px solid var(--input-border); border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; background: var(--container-bg); color: var(--text-color); box-sizing: border-box; }
         input:focus { border-color: var(--accent-color); }
 
-        /* Анимированная кнопка */
-        button { padding: 12px 25px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; position: relative; overflow: hidden; }
+        button { padding: 12px 25px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; width: auto; min-width: 200px; }
         button:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
-        button:active { transform: translateY(0); }
 
-        /* Спиннер загрузки */
-        #loader { display: none; margin: 20px auto; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        /* Анимация загрузки и прогресс-бар */
+        #loader-container { display: none; margin: 20px auto; text-align: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .progress-bar { width: 100%; background: var(--platform-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; position: relative; }
+        .progress-fill { width: 0%; height: 100%; background: var(--accent-color); transition: width 0.2s; }
+        #progress-text { font-size: 14px; color: var(--text-color); margin-top: 5px; display: block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .platforms-section { margin-top: 30px; text-align: left; border-top: 1px solid var(--input-border); padding-top: 20px; }
         .platforms-section p { font-weight: bold; color: var(--text-color); margin-bottom: 10px; text-align: center; }
         .category { margin-bottom: 15px; }
-        .category-title { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
-        .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .category-title { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
         .tag { background: var(--platform-bg); color: var(--platform-text); padding: 4px 10px; border-radius: 6px; font-size: 13px; border: 1px solid var(--input-border); transition: all 0.2s; }
         .tag:hover { background: var(--accent-color); color: white; }
     </style>
@@ -68,7 +69,13 @@
             <button type="submit" id="submitBtn">Проверить качество</button>
         </form>
         
-        <div id="loader"></div>
+        <div id="loader-container">
+            <div class="spinner"></div>
+            <span id="progress-text">Анализ видео: 0%</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
 
         <div class="platforms-section">
             <p>Поддерживаемые платформы:</p>
@@ -94,25 +101,33 @@
     </div>
 
     <script>
-        // Функция переключения темы
         function toggleTheme() {
             const body = document.body;
             const currentTheme = body.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                body.setAttribute('data-theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-            }
+            body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
         }
 
-        // Логика индикатора загрузки
         const form = document.getElementById('downloadForm');
         const btn = document.getElementById('submitBtn');
-        const loader = document.getElementById('loader');
+        const loaderContainer = document.getElementById('loader-container');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
 
         form.onsubmit = function() {
-            btn.style.display = 'none'; // Скрываем кнопку
-            loader.style.display = 'block'; // Показываем спиннер
+            btn.style.display = 'none';
+            loaderContainer.style.display = 'block';
+            
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 95) {
+                    clearInterval(interval);
+                } else {
+                    width += Math.random() * 5;
+                    if (width > 95) width = 95;
+                    progressFill.style.width = width + '%';
+                    progressText.innerText = `Анализ видео: ${Math.round(width)}%`;
+                }
+            }, 100);
         };
     </script>
 </body>
