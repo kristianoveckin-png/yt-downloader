@@ -5,66 +5,115 @@
     <title>Video Downloader</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
-        .container { text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 600px; }
-        h1 { color: #333; margin-bottom: 20px; }
-        input { width: 80%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; }
-        input:focus { border-color: #ff0000; }
-        button { padding: 12px 25px; background: #ff0000; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; }
-        button:hover { background: #cc0000; }
+        /* Переменные для тем */
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --input-border: #ddd;
+            --accent-color: #ff0000;
+            --accent-hover: #cc0000;
+            --platform-bg: #f1f3f5;
+            --platform-text: #555;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #18191a;
+            --container-bg: #242526;
+            --text-color: #e4e6eb;
+            --input-border: #3a3b3c;
+            --accent-color: #ff4d4d;
+            --accent-hover: #ff3333;
+            --platform-bg: #3a3b3c;
+            --platform-text: #b0b3b8;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; }
         
-        .platforms-section { margin-top: 30px; text-align: left; border-top: 1px solid #eee; padding-top: 20px; }
-        .platforms-section p { font-weight: bold; color: #444; margin-bottom: 10px; text-align: center; }
-        
+        /* Переключатель темы */
+        .theme-switch { position: absolute; top: 20px; right: 20px; cursor: pointer; background: var(--container-bg); border: 2px solid var(--accent-color); padding: 10px; border-radius: 50px; font-size: 20px; transition: 0.3s; }
+        .theme-switch:hover { transform: scale(1.1); }
+
+        .container { text-align: center; background: var(--container-bg); padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 90%; max-width: 600px; transition: background 0.3s; }
+        h1 { color: var(--text-color); margin-bottom: 20px; }
+        input { width: 80%; padding: 12px; border: 2px solid var(--input-border); border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; background: var(--container-bg); color: var(--text-color); }
+        input:focus { border-color: var(--accent-color); }
+
+        /* Анимированная кнопка */
+        button { padding: 12px 25px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; position: relative; overflow: hidden; }
+        button:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
+        button:active { transform: translateY(0); }
+
+        /* Спиннер загрузки */
+        #loader { display: none; margin: 20px auto; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .platforms-section { margin-top: 30px; text-align: left; border-top: 1px solid var(--input-border); padding-top: 20px; }
+        .platforms-section p { font-weight: bold; color: var(--text-color); margin-bottom: 10px; text-align: center; }
         .category { margin-bottom: 15px; }
         .category-title { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
         .tags { display: flex; flex-wrap: wrap; gap: 8px; }
-        .tag { background: #f1f3f5; color: #555; padding: 4px 10px; border-radius: 6px; font-size: 13px; border: 1px solid #e1e4e8; transition: all 0.2s; }
-        .tag:hover { background: #e2e6ea; color: #000; border-color: #ccc; }
+        .tag { background: var(--platform-bg); color: var(--platform-text); padding: 4px 10px; border-radius: 6px; font-size: 13px; border: 1px solid var(--input-border); transition: all 0.2s; }
+        .tag:hover { background: var(--accent-color); color: white; }
     </style>
 </head>
 <body>
+    <div class="theme-switch" onclick="toggleTheme()" title="Сменить тему">🌓</div>
+    
     <div class="container">
         <h1>Скачать видео</h1>
-        <form action="/analyze" method="post">
+        <form id="downloadForm" action="/analyze" method="post">
             <input type="text" name="url" placeholder="Вставьте ссылку на видео..." required>
             <br>
-            <button type="submit">Проверить качество</button>
+            <button type="submit" id="submitBtn">Проверить качество</button>
         </form>
+        
+        <div id="loader"></div>
 
         <div class="platforms-section">
             <p>Поддерживаемые платформы:</p>
-            
             <div class="category">
                 <span class="category-title">СНГ Сервисы</span>
                 <div class="tags">
-                    <span class="tag">VK</span>
-                    <span class="tag">Rutube</span>
-                    <span class="tag">Дзен</span>
-                    <span class="tag">OK.ru</span>
+                    <span class="tag">VK</span><span class="tag">Rutube</span><span class="tag">Дзен</span><span class="tag">OK.ru</span>
                 </div>
             </div>
-
             <div class="category">
                 <span class="category-title">Мировые соцсети</span>
                 <div class="tags">
-                    <span class="tag">YouTube</span>
-                    <span class="tag">TikTok</span>
-                    <span class="tag">Instagram</span>
-                    <span class="tag">Facebook</span>
-                    <span class="tag">Twitter (X)</span>
+                    <span class="tag">YouTube</span><span class="tag">TikTok</span><span class="tag">Instagram</span><span class="tag">Facebook</span><span class="tag">Twitter (X)</span>
                 </div>
             </div>
-
             <div class="category">
                 <span class="category-title">Видеохостинги</span>
                 <div class="tags">
-                    <span class="tag">Vimeo</span>
-                    <span class="tag">DailyMotion</span>
-                    <span class="tag">Twitch</span>
+                    <span class="tag">Vimeo</span><span class="tag">DailyMotion</span><span class="tag">Twitch</span>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Функция переключения темы
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                body.setAttribute('data-theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // Логика индикатора загрузки
+        const form = document.getElementById('downloadForm');
+        const btn = document.getElementById('submitBtn');
+        const loader = document.getElementById('loader');
+
+        form.onsubmit = function() {
+            btn.style.display = 'none'; // Скрываем кнопку
+            loader.style.display = 'block'; // Показываем спиннер
+        };
+    </script>
 </body>
 </html>
