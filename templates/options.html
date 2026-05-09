@@ -49,10 +49,10 @@
         .btn-back:hover { color: var(--text-color); }
     </style>
 </head>
-<body data-theme="light"> <!-- По умолчанию светлая -->
+<body>
     <div class="container">
-        <h2>Выберите качество</h2>
-        <div class="video-title">{{ title }}</div>
+        <h2 id="page-title">Выберите качество</h2>
+        <div class="video-title" id="video-title">{{ title }}</div>
         
         <div id="download-loader">
             <div class="spinner"></div>
@@ -65,7 +65,7 @@
         <form action="/download" method="post" id="downloadForm">
             <input type="hidden" name="url" value="{{ url }}">
             <div class="table-wrapper">
-                <table>
+                <table id="quality-table">
                     <thead>
                         <tr>
                             <th>Качество</th>
@@ -95,10 +95,16 @@
         const loader = document.getElementById('download-loader');
         const progressFill = document.getElementById('progress-fill');
         const progressText = document.getElementById('progress-text');
+        const pageTitle = document.getElementById('page-title');
+        const videoTitle = document.getElementById('video-title');
 
         form.onsubmit = function() {
-            // Скрываем таблицу и показываем загрузку
+            // Скрываем всё лишнее
             form.style.display = 'none';
+            pageTitle.style.display = 'none';
+            videoTitle.style.display = 'none';
+            
+            // Показываем загрузку
             loader.style.display = 'block';
             
             let width = 0;
@@ -112,6 +118,19 @@
                     progressText.innerText = `Загрузка на сервер: ${Math.round(width)}%`;
                 }
             }, 150);
+
+            // ТАЙМЕР ВОЗВРАТА: через 7 секунд возвращаем интерфейс назад
+            // Это нужно, так как браузер не сообщает нам о конце скачивания файла
+            setTimeout(() => {
+                loader.style.display = 'none';
+                form.style.display = 'block';
+                pageTitle.style.display = 'block';
+                videoTitle.style.display = 'block';
+                
+                // Сбрасываем прогресс-бар для следующего раза
+                progressFill.style.width = '0%';
+                progressText.innerText = 'Загрузка на сервер: 0%';
+            }, 7000); 
         };
     </script>
 </body>
