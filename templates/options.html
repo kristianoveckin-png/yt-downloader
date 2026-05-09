@@ -5,16 +5,38 @@
     <title>Выбор качества</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
-        .container { text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 600px; }
-        h2 { color: #333; margin-bottom: 10px; }
-        .video-title { color: #666; font-size: 14px; margin-bottom: 20px; font-style: italic; }
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --input-border: #ddd;
+            --accent-color: #28a745;
+            --accent-hover: #218838;
+        }
+
+        /* Тема подхватывается из браузера или настроек */
+        [data-theme="dark"] {
+            --bg-color: #18191a;
+            --container-bg: #242526;
+            --text-color: #e4e6eb;
+            --input-border: #3a3b3c;
+            --accent-color: #34d058;
+            --accent-hover: #2eb84d;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; }
+        .container { text-align: center; background: var(--container-bg); padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 90%; max-width: 600px; transition: background 0.3s; }
+        h2 { color: var(--text-color); margin-bottom: 10px; }
+        .video-title { color: #888; font-size: 14px; margin-bottom: 25px; font-style: italic; }
+        
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background-color: #f8f8f8; }
-        .btn-download { padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 14px; }
-        .btn-download:hover { background: #218838; }
-        .btn-back { display: inline-block; margin-top: 20px; text-decoration: none; color: #666; font-size: 14px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--input-border); text-align: left; }
+        th { background-color: var(--platform-bg, #f8f8f8); color: var(--text-color); }
+        
+        .btn-download { padding: 8px 15px; background: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s; font-size: 14px; font-weight: bold; }
+        .btn-download:hover { background: var(--accent-hover); transform: scale(1.05); box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3); }
+        .btn-back { display: inline-block; margin-top: 20px; text-decoration: none; color: #888; font-size: 14px; transition: 0.3s; }
+        .btn-back:hover { color: var(--text-color); }
     </style>
 </head>
 <body>
@@ -22,7 +44,7 @@
         <h2>Выберите качество</h2>
         <div class="video-title">{{ title }}</div>
         
-        <form action="/download" method="post">
+        <form action="/download" method="post" id="downloadForm">
             <input type="hidden" name="url" value="{{ url }}">
             <table>
                 <thead>
