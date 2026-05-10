@@ -31,30 +31,30 @@ def analyze():
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # ПРОВЕРКА: Режим поиска
+            # РЕЖИМ ПОИСКА
             if url.startswith('search:'):
                 query = url.replace('search:', '')
                 search_query = f"ytsearch5:{query}"
                 info = ydl.extract_info(search_query, download=False)
                 
-                search_results = []
+                results = []
                 for entry in info['entries']:
-                    # Исключаем YouTube из результатов поиска
-                    if 'youtube.com' not in entry.get('webpage_url', '') and 'youtu.be' not in entry.get('webpage_url', ''):
-                        search_results.append({
+                    webpage = entry.get('webpage_url', '')
+                    if 'youtube.com' not in webpage and 'youtu.be' not in webpage:
+                        results.append({
                             'title': entry.get('title'),
                             'url': entry.get('url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
                         })
                 
-                if not search_results:
-                    return "К сожалению, по вашему запросу ничего не найдено (кроме YouTube, который заблокирован)."
+                if not results:
+                    return "Ничего не найдено (кроме YouTube, который заблокирован)."
                 
-                return render_template('playlist.html', title=f"Результаты поиска: {query}", videos=search_//results)
+                return render_template('playlist.html', title=f"Результаты поиска: {query}", videos=results)
             
-            # ОБЫЧНЫЙ АНАЛИЗ ССЫЛКИ
+            # РЕЖИМ ССЫЛКИ
             else:
                 if 'youtube.com' in url or 'youtu.be' in url:
-                    return "Извините, скачивание с YouTube временно недоступно. Попробуйте VK, Rutube или TikTok!"
+                    return "Извините, YouTube временно недоступен. Попробуйте VK, Rutube или TikTok!"
 
                 info = ydl.extract_info(url, download=False)
                 if 'entries' in info:
@@ -97,7 +97,7 @@ def download():
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     }
     try:
-        with yt_//dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             return send_file(filename, as_attachment=True)
@@ -115,8 +115,8 @@ def download_audio_raw():
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_//filename(info)
-            return send_file(filename, as_attachment=True)
+            filename = ydl.prepare_filename(info)
+            return send_//file(filename, as_attachment=True)
     except Exception as e:
         return f"Ошибка при скачивании аудио: {e}"
 
