@@ -12,9 +12,14 @@ def favicon():
 def index():
     return render_template('index.html')
 
-@app.route('/analyze', methods=['POST'])
+@app.route('/analyze', methods=['GET', 'POST'])
 def analyze():
-    url = request.form.get('url')
+    # Проверяем: ссылка пришла из формы (POST) или из ссылки-параметра (GET)
+    if request.method == 'POST':
+        url = request.form.get('url')
+    else:
+        url = request.args.get('url')
+        
     if not url:
         return redirect(url_for('index'))
 
@@ -22,16 +27,15 @@ def analyze():
         'quiet': True,
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'referer': 'https://www.google.com/',
-        'extract_flat': 'in_playlist', # Важно: позволяет быстро получить список видео из плейлиста
+        'extract_flat': 'in_playlist',
     }
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             
-            # ПРОВЕРКА: Это плейлист или одно видео?
+            # Проверка на плейлист
             if 'entries' in info:
-                # Это плейлист! Собираем список всех видео в нем
                 playlist_videos = []
                 for entry in info['entries']:
                     playlist_videos.append({
@@ -40,8 +44,8 @@ def analyze():
                     })
                 return render_template('playlist.html', title=info.get('title'), videos=playlist_videos)
             
+            # Обычное видео
             else:
-                # Это обычное видео, ищем форматы
                 formats = []
                 for f in info.get('formats', []):
                     if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('ext') == 'mp4':
