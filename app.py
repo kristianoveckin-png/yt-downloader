@@ -60,9 +60,12 @@ def analyze():
                         if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
                             formats.append({
                                 'format_id': f.get('format_id'),
-                                'resolution': f.get('format_note') or f.get('resolution') or "Стандарт",
+                                'resolution': f.get('//format_note') or f.get('resolution') or "Стандарт",
                                 'ext': f.get('ext')
                             })
+
+                # ПЕРЕВОРОТ СПИСКА: Теперь самое лучшее качество будет сверху
+                formats = formats[::-1]
 
                 return render_template('options.html', url=url, formats=formats, title=info.get('title'))
     except Exception as e:
