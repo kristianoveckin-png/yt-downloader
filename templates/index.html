@@ -19,18 +19,12 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; padding: 20px; box-sizing: border-box; }
         .theme-switch { position: absolute; top: 20px; right: 20px; cursor: pointer; background: var(--container-bg); border: 2px solid var(--accent-color); padding: 10px; border-radius: 50px; font-size: 20px; transition: 0.3s; z-index: 10; }
         .container { text-align: center; background: var(--container-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; transition: background 0.3s; box-sizing: border-box; }
-        
-        /* Счётчик */
         .counter { font-size: 14px; color: #888; margin-bottom: 10px; display: block; }
         .count-num { color: var(--accent-color); font-weight: bold; }
-
         h1 { color: var(--text-color); margin-bottom: 20px; font-size: clamp(24px, 5vw, 32px); }
-        
-        /* Переключатель режимов */
         .mode-switch { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .mode-btn { padding: 8px 15px; background: var(--platform-bg); color: var(--platform-text); border: 2px solid var(--input-border); border-radius: 8px; cursor: pointer; font-size: 14px; transition: 0.3s; }
         .mode-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-
         input { width: 100%; max-width: 400px; padding: 12px; border: 2px solid var(--input-border); border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; background: var(--container-bg); color: var(--text-color); box-sizing: border-box; }
         input:focus { border-color: var(--accent-color); }
         button { padding: 12px 25px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; min-width: 200px; }
@@ -55,12 +49,10 @@
     <div class="container">
         <span class="counter">Скачано видео: <span id="count-num" class="count-num">12450</span></span>
         <h1>Скачать видео</h1>
-        
         <div class="mode-switch">
             <button type="button" class="mode-btn active" id="linkMode" onclick="setMode('link')">По ссылке</button>
             <button type="button" class="mode-btn" id="searchMode" onclick="setMode('search')">Поиск</button>
         </div>
-
         <form id="downloadForm" action="/analyze" method="post">
             <input type="hidden" name="mode" id="modeInput" value="link">
             <input type="text" name="url" id="urlInput" placeholder="Вставьте ссылку на видео..." required>
@@ -75,7 +67,7 @@
         <div class="platforms-section">
             <p>Поддерживаемые платформы:</p>
             <div class="category"><span class="category-title">СНГ Сервисы</span><div class="tags"><span class="tag">VK</span><span class="tag">Rutube</span><span class="tag">Дзен</span><span class="tag">OK.ru</span></div></div>
-            <div class="category"><span class="category-title">Мировые соцсети</span><div class="tags"><span class="tag">YouTube</span><span class="tag">TikTok</span><span class="tag">Instagram</span><span class="tag">Facebook</span><span class="tag">Twitter (X)</span></div></div>
+            <div class="category"><span class="category-title">Мировые соцсети</span><div class="tags"><span class="tag">TikTok</span><span class="tag">Instagram</span><span class="tag">Facebook</span><span class="tag">Twitter (X)</span></div></div>
             <div class="category"><span class="category-title">Видеохостинги</span><div class="tags"><span class="tag">Vimeo</span><span class="tag">DailyMotion</span><span class="tag">Twitch</span></div></div>
         </div>
     </div>
@@ -85,27 +77,35 @@
             const currentTheme = body.getAttribute('data-theme');
             body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
         }
-
         function setMode(mode) {
             document.getElementById('modeInput').value = mode;
             document.getElementById('linkMode').classList.toggle('active', mode === 'link');
             document.getElementById('searchMode').classList.toggle('active', mode === 'search');
-            document.getElementById('urlInput').placeholder = mode === 'link' ? 'Вставьте ссылку на видео...' : 'Введите запрос для поиска...';
+            
+            if (mode === 'search') {
+                document.getElementById('urlInput').placeholder = 'Введите запрос для поиска...';
+            } else {
+                document.getElementById('urlInput').placeholder = 'Вставьте ссылку на видео...';
+            }
         }
-
-        // Счётчик скачиваний
-        let count = 12450;
-        setInterval(() => {
-            count += Math.floor(Math.random() * 3);
-            document.getElementById('count-num').innerText = count.toLocaleString();
-        }, 3000);
-
-        const form = document.getElementById('downloadForm');
-        const btn = document.getElementById('submitBtn');
-        const loaderContainer = document.getElementById('loader-container');
-        const progressFill = document.getElementById('progress-fill');
-        const progressText = document.getElementById('progress-text');
-        form.onsubmit = function() {
+        // Для поиска в форме добавляем префикс, чтобы сервер понял, что это поиск
+        document.getElementById('downloadForm').onsubmit = function(e) {
+            const mode = document.getElementById('modeInput').value;
+            const urlInput = document.getElementById('urlInput');
+            if (mode === 'search') {
+                // Мы создаем скрытое поле, так как меняем значение input
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'url';
+                hiddenInput.value = 'search:' + urlInput.value;
+                this.appendChild(hiddenInput);
+                urlInput.disabled = true; // Отключаем основной, чтобы отправить скрытый
+            }
+            
+            const btn = document.getElementById('submitBtn');
+            const loaderContainer = document.getElementById('loader-container');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
             btn.style.display = 'none';
             loaderContainer.style.display = 'block';
             let width = 0;
@@ -119,6 +119,11 @@
                 }
             }, 100);
         };
+        let count = 12450;
+        setInterval(() => {
+            count += Math.floor(Math.random() * 3);
+            document.getElementById('count-num').innerText = count.toLocaleString();
+        }, 3000);
     </script>
 </body>
 </html>
