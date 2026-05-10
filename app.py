@@ -22,33 +22,47 @@ def analyze():
         'quiet': True,
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'referer': 'https://www.google.com/',
+        'extract_flat': 'in_playlist', # Важно: позволяет быстро получить список видео из плейлиста
     }
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            formats = []
             
-            for f in info.get('formats', []):
-                if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('ext') == 'mp4':
-                    formats.append({
-                        'format_id': f.get('format_id'),
-                        'resolution': f.get('format_note') or f.get('resolution'),
-                        'ext': f.get('ext')
+            # ПРОВЕРКА: Это плейлист или одно видео?
+            if 'entries' in info:
+                # Это плейлист! Собираем список всех видео в нем
+                playlist_videos = []
+                for entry in info['entries']:
+                    playlist_videos.append({
+                        'title': entry.get('title'),
+                        'url': entry.get('url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
                     })
+                return render_template('playlist.html', title=info.get('title'), videos=playlist_videos)
             
-            if not formats:
+            else:
+                # Это обычное видео, ищем форматы
+                formats = []
                 for f in info.get('formats', []):
-                    if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
+                    if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('ext') == 'mp4':
                         formats.append({
                             'format_id': f.get('format_id'),
-                            'resolution': f.get('format_note') or f.get('resolution') or "Стандарт",
+                            'resolution': f.get('format_note') or f.get('resolution'),
                             'ext': f.get('ext')
                         })
+                
+                if not formats:
+                    for f in info.get('formats', []):
+                        if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
+                            formats.append({
+                                'format_id': f.get('format_id'),
+                                'resolution': f.get('format_note') or f.get('resolution') or "Стандарт",
+                                'ext': f.get('ext')
+                            })
 
-            return render_template('options.html', url=url, formats=formats, title=info.get('title'))
+                return render_template('options.html', url=url, formats=formats, title=info.get('title'))
     except Exception as e:
-        return f"Ошибка при анализе видео: {e}"
+        return f"Ошибка при анализе: {e}"
 
 @app.route('/download', methods=['POST'])
 def download():
