@@ -81,27 +81,19 @@
             document.getElementById('modeInput').value = mode;
             document.getElementById('linkMode').classList.toggle('active', mode === 'link');
             document.getElementById('searchMode').classList.toggle('active', mode === 'search');
-            
-            if (mode === 'search') {
-                document.getElementById('urlInput').placeholder = 'Введите запрос для поиска...';
-            } else {
-                document.getElementById('urlInput').placeholder = 'Вставьте ссылку на видео...';
-            }
+            document.getElementById('urlInput').placeholder = mode === 'link' ? 'Вставьте ссылку на видео...' : 'Введите запрос для поиска...';
         }
-        // Для поиска в форме добавляем префикс, чтобы сервер понял, что это поиск
         document.getElementById('downloadForm').onsubmit = function(e) {
             const mode = document.getElementById('modeInput').value;
             const urlInput = document.getElementById('urlInput');
             if (mode === 'search') {
-                // Мы создаем скрытое поле, так как меняем значение input
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
                 hiddenInput.name = 'url';
                 hiddenInput.value = 'search:' + urlInput.value;
                 this.appendChild(hiddenInput);
-                urlInput.disabled = true; // Отключаем основной, чтобы отправить скрытый
+                urlInput.disabled = true;
             }
-            
             const btn = document.getElementById('submitBtn');
             const loaderContainer = document.getElementById('loader-container');
             const progressFill = document.getElementById('progress-fill');
