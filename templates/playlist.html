@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список плейлиста</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/png">
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --input-border: #ddd;
+            --accent-color: #ff0000;
+            --accent-hover: #cc0000;
+        }
+        [data-theme="dark"] {
+            --bg-color: #18191a;
+            --container-bg: #242526;
+            --text-color: #e4e6eb;
+            --input-border: #3a3b3c;
+            --accent-color: #ff4d4d;
+            --accent-hover: #ff3333;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { text-align: center; background: var(--container-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 700px; box-sizing: border-box; }
+        h2 { margin-bottom: 10px; }
+        .playlist-title { color: #888; font-size: 16px; margin-bottom: 20px; font-style: italic; }
+        .video-list { text-align: left; max-height: 400px; overflow-y: auto; border: 1px solid var(--input-border); border-radius: 10px; padding: 10px; margin-bottom: 20px; }
+        .video-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--input-border); transition: 0.2s; }
+        .video-item:hover { background: var(--platform-bg, #f8f8f8); }
+        .video-name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%; }
+        .btn-select { padding: 5px 10px; background: var(--accent-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn-back { text-decoration: none; color: #888; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Видео в плейлисте</h2>
+        <div class="playlist-title">{{ title }}</div>
+        
+        <div class="video-list">
+            {% for video in videos %}
+            <div class="video-item">
+                <span class="video-name">{{ video.title }}</span>
+                <form action="/analyze" method="post" style="margin:0;">
+                    <input type="hidden" name="url" value="{{ video.url }}">
+                    <button type="submit" class="btn-select">Выбрать</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="/" class="btn-back">← Вернуться на главную</a>
+    </div>
+</body>
+</html>
