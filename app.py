@@ -34,12 +34,13 @@ def analyze():
             # РЕЖИМ ПОИСКА
             if url.startswith('search:'):
                 query = url.replace('search:', '')
-                search_query = f"ytsearch5:{query}"
+                search_query = f"ytsearch10:{query}" # Ищем чуть больше, чтобы было из чего фильтровать
                 info = ydl.extract_info(search_query, download=False)
                 
                 results = []
                 for entry in info['entries']:
-                    webpage = entry.get('webpage_url', '')
+                    webpage = entry.get('webpage_url', '').lower()
+                    # ЖЕСТКИЙ ФИЛЬТР: Удаляем всё, что связано с YouTube
                     if 'youtube.com' not in webpage and 'youtu.be' not in webpage:
                         results.append({
                             'title': entry.get('title'),
@@ -47,23 +48,26 @@ def analyze():
                         })
                 
                 if not results:
-                    return "Ничего не найдено (кроме YouTube, который заблокирован)."
+                    return "Ничего не найдено. Попробуйте другой запрос (YouTube заблокирован)."
                 
                 return render_template('playlist.html', title=f"Результаты поиска: {query}", videos=results)
             
             # РЕЖИМ ССЫЛКИ
             else:
-                if 'youtube.com' in url or 'youtu.be' in url:
-                    return "Извините, YouTube временно недоступен. Попробуйте VK, Rutube или TikTok!"
+                # Блокировка прямых ссылок на YouTube
+                if 'youtube.com' in url.lower() or 'youtu.be' in url.lower():
+                    return "Извините, скачивание с YouTube временно недоступно. Попробуйте VK, Rutube или TikTok!"
 
                 info = ydl.extract_info(url, download=False)
                 if 'entries' in info:
                     playlist_videos = []
                     for entry in info['entries']:
-                        playlist_videos.append({
-                            'title': entry.get('title'),
-                            'url': entry.get('url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
-                        })
+                        webpage = entry.get('webpage_url', '').lower()
+                        if 'youtube.com' not in webpage and 'youtu.be' not in webpage:
+                            playlist_videos.append({
+                                'title': entry.get('title'),
+                                'url': entry.get('url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
+                            })
                     return render_template('playlist.html', title=info.get('title'), videos=playlist_videos)
                 else:
                     formats = []
@@ -97,7 +101,7 @@ def download():
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     }
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_//dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             return send_file(filename, as_attachment=True)
@@ -116,7 +120,7 @@ def download_audio_raw():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
-            return send_//file(filename, as_attachment=True)
+            return send_file(filename, as_attachment=True)
     except Exception as e:
         return f"Ошибка при скачивании аудио: {e}"
 
