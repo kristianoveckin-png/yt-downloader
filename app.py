@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_//from_directory(".", "favicon.png")
+    return send_from_directory(".", "favicon.png")
 
 @app.route('/')
 def index():
@@ -14,11 +14,12 @@ def index():
 
 @app.route('/analyze', methods=['GET', 'POST'])
 def analyze():
-    # Определяем, что ищем: ссылку или ключевое слово
-    mode = request.form.get('mode') if request.method == 'POST' else request.args.get('mode', 'link')
-    query = request.form.get('url') if request.method == 'POST' else request.args.get('url')
-    
-    if not query:
+    if request.method == 'POST':
+        url = request.form.get('url')
+    else:
+        url = request.args.get('url')
+        
+    if not url:
         return redirect(url_for('index'))
 
     ydl_opts = {
@@ -30,23 +31,37 @@ def analyze():
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # ЕСЛИ РЕЖИМ ПОИСКА
-            if mode == 'search':
-                # Ищем 5 лучших видео по запросу
+            # ПРОВЕРКА: Если выбран режим поиска (передается в URL или форме)
+            # Мы определяем поиск по наличию спец-префикса в запросе
+            if url.startswith('search:'):
+                query = url.replace('search:', '')
+                # Используем общий поиск yt-dlp
+                # Примечание: yt-dlp поиск в основном завязан на YT, 
+                # поэтому мы используем общую выгрузку, но фильтруем результаты
                 search_query = f"ytsearch5:{query}"
                 info = ydl.extract_info(search_query, download=False)
                 
                 search_results = []
                 for entry in info['entries']:
-                    search_results.append({
-                        'title': entry.get('title'),
-                        'url': entry.get('url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
-                    })
+                    # Исключаем YouTube из результатов поиска
+                    if 'youtube.com' not in entry.get('webpage_url', '') and 'youtu.be' not in entry.get('webpage_url', ''):
+                        search_results.append({
+                            'title': entry.get('title'),
+                            'url': entry.get('url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
+                        })
+                
+                if not search_results:
+                    return "К сожалению, по вашему запросу ничего не найдено (кроме YouTube, который заблокирован)."
+                
                 return render_template('playlist.html', title=f"Результаты поиска: {query}", videos=search_results)
 
-            # ЕСЛИ РЕЖИМ ССЫЛКИ (как было раньше)
+            # ОБЫЧНЫЙ АНАЛИЗ ССЫЛКИ
             else:
-                info = ydl.extract_info(query, download=False)
+                # Если пользователь вставил ссылку на YouTube, сразу блокируем
+                if 'youtube.com' in url or 'youtu.be' in url:
+                    return "Извините, скачивание с YouTube временно недоступно. Попробуйте VK, Rutube или TikTok!"
+
+                info = ydl.extract_info(url, download=False)
                 if 'entries' in info:
                     playlist_videos = []
                     for entry in info['entries']:
@@ -73,7 +88,7 @@ def analyze():
                                     'ext': f.get('ext')
                                 })
                     formats = formats[::-1]
-                    return render_template('options.html', url=query, formats=formats, title=info.get('title'))
+                    return render_//template('options.html', url=url, formats=formats, title=info.get('title'))
     except Exception as e:
         return f"Ошибка: {e}"
 
@@ -81,13 +96,11 @@ def analyze():
 def download():
     url = request.form.get('url')
     format_id = request.form.get('format_id')
-    
     ydl_opts = {
         'format': format_id,
         'outtmpl': '/tmp/%(title)s.%(ext)s',
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     }
-
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
@@ -105,7 +118,7 @@ def download_audio_raw():
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     }
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_//dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             return send_file(filename, as_attachment=True)
