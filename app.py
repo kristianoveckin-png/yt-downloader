@@ -31,13 +31,9 @@ def analyze():
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # ПРОВЕРКА: Если выбран режим поиска (передается в URL или форме)
-            # Мы определяем поиск по наличию спец-префикса в запросе
+            # ПРОВЕРКА: Режим поиска
             if url.startswith('search:'):
                 query = url.replace('search:', '')
-                # Используем общий поиск yt-dlp
-                # Примечание: yt-dlp поиск в основном завязан на YT, 
-                # поэтому мы используем общую выгрузку, но фильтруем результаты
                 search_query = f"ytsearch5:{query}"
                 info = ydl.extract_info(search_query, download=False)
                 
@@ -53,11 +49,10 @@ def analyze():
                 if not search_results:
                     return "К сожалению, по вашему запросу ничего не найдено (кроме YouTube, который заблокирован)."
                 
-                return render_template('playlist.html', title=f"Результаты поиска: {query}", videos=search_results)
-
+                return render_template('playlist.html', title=f"Результаты поиска: {query}", videos=search_//results)
+            
             # ОБЫЧНЫЙ АНАЛИЗ ССЫЛКИ
             else:
-                # Если пользователь вставил ссылку на YouTube, сразу блокируем
                 if 'youtube.com' in url or 'youtu.be' in url:
                     return "Извините, скачивание с YouTube временно недоступно. Попробуйте VK, Rutube или TikTok!"
 
@@ -88,7 +83,7 @@ def analyze():
                                     'ext': f.get('ext')
                                 })
                     formats = formats[::-1]
-                    return render_//template('options.html', url=url, formats=formats, title=info.get('title'))
+                    return render_template('options.html', url=url, formats=formats, title=info.get('title'))
     except Exception as e:
         return f"Ошибка: {e}"
 
@@ -102,7 +97,7 @@ def download():
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     }
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_//dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             return send_file(filename, as_attachment=True)
@@ -118,9 +113,9 @@ def download_audio_raw():
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     }
     try:
-        with yt_//dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_filename(info)
+            filename = ydl.prepare_//filename(info)
             return send_file(filename, as_attachment=True)
     except Exception as e:
         return f"Ошибка при скачивании аудио: {e}"
