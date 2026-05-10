@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Downloader</title>
+    <title>Video Downloader Pro</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
         :root {
@@ -28,9 +28,22 @@
             --platform-text: #b0b3b8;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; padding: 20px; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; background-color: var(--bg-color); 
+            color: var(--text-color); margin: 0; transition: background 0.3s; 
+            padding: 20px; box-sizing: border-box;
+            cursor: default; /* Базовый курсор */
+        }
         
-        .theme-switch { position: absolute; top: 20px; right: 20px; cursor: pointer; background: var(--container-bg); border: 2px solid var(--accent-color); padding: 10px; border-radius: 50px; font-size: 20px; transition: 0.3s; z-index: 10; }
+        /* Кастомный курсор для интерактивных элементов */
+        a, button, input, .theme-switch { 
+            cursor: pointer; 
+        }
+
+        .theme-switch { position: absolute; top: 20px; right: 20px; background: var(--container-bg); border: 2px solid var(--accent-color); padding: 10px; border-radius: 50px; font-size: 20px; transition: 0.3s; z-index: 10; }
+        .theme-switch:hover { transform: scale(1.1); }
 
         .container { text-align: center; background: var(--container-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; transition: background 0.3s; box-sizing: border-box; }
         h1 { color: var(--text-color); margin-bottom: 20px; font-size: clamp(24px, 5vw, 32px); }
@@ -38,10 +51,9 @@
         input { width: 100%; max-width: 400px; padding: 12px; border: 2px solid var(--input-border); border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; background: var(--container-bg); color: var(--text-color); box-sizing: border-box; }
         input:focus { border-color: var(--accent-color); }
 
-        button { padding: 12px 25px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; width: auto; min-width: 200px; }
+        button { padding: 12px 25px; background: var(--accent-color); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; transition: all 0.3s; width: auto; min-width: 200px; }
         button:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
 
-        /* Анимация загрузки и прогресс-бар */
         #loader-container { display: none; margin: 20px auto; text-align: center; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
         .progress-bar { width: 100%; background: var(--platform-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; position: relative; }
@@ -56,17 +68,28 @@
         .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
         .tag { background: var(--platform-bg); color: var(--platform-text); padding: 4px 10px; border-radius: 6px; font-size: 13px; border: 1px solid var(--input-border); transition: all 0.2s; }
         .tag:hover { background: var(--accent-color); color: white; }
+
+        /* Стили для FAQ */
+        .faq-section { margin-top: 30px; text-align: left; border-top: 1px solid var(--input-border); padding-top: 20px; }
+        .faq-title { font-weight: bold; color: var(--text-color); margin-bottom: 15px; text-align: center; }
+        details { background: var(--platform-bg); padding: 10px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; border: 1px solid var(--input-border); }
+        details:hover { border-color: var(--accent-color); }
+        summary { font-weight: bold; color: var(--text-color); outline: none; }
+        .faq-content { padding: 10px 0 0 0; font-size: 14px; color: var(--platform-text); line-height: 1.5; }
     </style>
 </head>
 <body>
-    <div class="theme-switch" onclick="toggleTheme()" title="Сменить тему">🌓</div>
+    <!-- Звук клика (используем короткий системный звук из сети) -->
+    <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+
+    <div class="theme-switch" onclick="toggleTheme(); playClick();" title="Сменить тему">🌓</div>
     
     <div class="container">
-        <h1>Скачать видео</h1>
+        <h1 onclick="playClick()">Скачать видео</h1>
         <form id="downloadForm" action="/analyze" method="post">
-            <input type="text" name="url" placeholder="Вставьте ссылку на видео..." required>
+            <input type="text" name="url" placeholder="Вставьте ссылку на видео..." required onclick="playClick()">
             <br>
-            <button type="submit" id="submitBtn">Проверить качество</button>
+            <button type="submit" id="submitBtn" onclick="playClick()">Проверить качество</button>
         </form>
         
         <div id="loader-container">
@@ -82,21 +105,47 @@
             <div class="category">
                 <span class="category-title">СНГ Сервисы</span>
                 <div class="tags">
-                    <span class="tag">VK</span><span class="tag">Rutube</span><span class="tag">Дзен</span><span class="tag">OK.ru</span>
+                    <span class="tag" onclick="playClick()">VK</span>
+                    <span class="tag" onclick="playClick()">Rutube</span>
+                    <span class="tag" onclick="playClick()">Дзен</span>
+                    <span class="tag" onclick="playClick()">OK.ru</span>
                 </div>
             </div>
             <div class="category">
                 <span class="category-title">Мировые соцсети</span>
                 <div class="tags">
-                    <span class="tag">YouTube</span><span class="tag">TikTok</span><span class="tag">Instagram</span><span class="tag">Facebook</span><span class="tag">Twitter (X)</span>
+                    <span class="tag" onclick="playClick()">YouTube</span>
+                    <span class="tag" onclick="playClick()">TikTok</span>
+                    <span class="tag" onclick="playClick()">Instagram</span>
+                    <span class="tag" onclick="playClick()">Facebook</span>
+                    <span class="tag" onclick="playClick()">Twitter (X)</span>
                 </div>
             </div>
             <div class="category">
                 <span class="category-title">Видеохостинги</span>
                 <div class="tags">
-                    <span class="tag">Vimeo</span><span class="tag">DailyMotion</span><span class="tag">Twitch</span>
+                    <span class="tag" onclick="playClick()">Vimeo</span>
+                    <span class="tag" onclick="playClick()">DailyMotion</span>
+                    <span class="tag" onclick="playClick()">Twitch</span>
                 </div>
             </div>
+        </div>
+
+        <!-- FAQ РАЗДЕЛ -->
+        <div class="faq-section">
+            <p class="faq-title">Часто задаваемые вопросы</p>
+            <details onclick="playClick()">
+                <summary>Почему не качается видео с YouTube?</summary>
+                <div class="faq-content">YouTube часто блокирует запросы от облачных серверов. Чтобы скачать с YouTube, попробуйте запустить сайт локально на своем компьютере.</div>
+            </details>
+            <details onclick="playClick()">
+                <summary>Бесплатно ли это?</summary>
+                <div class="faq-content">Да, этот сервис полностью бесплатный и не требует регистрации.</div>
+            </details>
+            <details onclick="playClick()">
+                <summary>В каком формате скачиваются видео?</summary>
+                <div class="faq-content">Мы стараемся предлагать лучший формат MP4, который поддерживается всеми устройствами.</div>
+            </details>
         </div>
     </div>
 
@@ -105,6 +154,12 @@
             const body = document.body;
             const currentTheme = body.getAttribute('data-theme');
             body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        }
+
+        function playClick() {
+            const sound = document.getElementById('clickSound');
+            sound.currentTime = 0;
+            sound.play().catch(e => {}); // Игнорируем ошибку, если браузер блокирует автозвук
         }
 
         const form = document.getElementById('downloadForm');
