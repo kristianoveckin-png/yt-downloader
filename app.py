@@ -31,16 +31,14 @@ def analyze():
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # РЕЖИМ ПОИСКА
             if url.startswith('search:'):
                 query = url.replace('search:', '')
-                search_query = f"ytsearch10:{query}" # Ищем чуть больше, чтобы было из чего фильтровать
+                search_query = f"ytsearch10:{query}"
                 info = ydl.extract_info(search_query, download=False)
                 
                 results = []
                 for entry in info['entries']:
                     webpage = entry.get('webpage_url', '').lower()
-                    # ЖЕСТКИЙ ФИЛЬТР: Удаляем всё, что связано с YouTube
                     if 'youtube.com' not in webpage and 'youtu.be' not in webpage:
                         results.append({
                             'title': entry.get('title'),
@@ -48,15 +46,13 @@ def analyze():
                         })
                 
                 if not results:
-                    return "Ничего не найдено. Попробуйте другой запрос (YouTube заблокирован)."
+                    return "Ничего не найдено (кроме YouTube, который заблокирован)."
                 
                 return render_template('playlist.html', title=f"Результаты поиска: {query}", videos=results)
             
-            # РЕЖИМ ССЫЛКИ
             else:
-                # Блокировка прямых ссылок на YouTube
                 if 'youtube.com' in url.lower() or 'youtu.be' in url.lower():
-                    return "Извините, скачивание с YouTube временно недоступно. Попробуйте VK, Rutube или TikTok!"
+                    return "Извините, YouTube временно недоступен. Попробуйте VK, Rutube или TikTok!"
 
                 info = ydl.extract_info(url, download=False)
                 if 'entries' in info:
@@ -101,7 +97,7 @@ def download():
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     }
     try:
-        with yt_//dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             return send_file(filename, as_attachment=True)
