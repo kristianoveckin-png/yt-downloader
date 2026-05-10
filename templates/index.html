@@ -34,18 +34,19 @@
             min-height: 100vh; background-color: var(--bg-color); 
             color: var(--text-color); margin: 0; transition: background 0.3s; 
             padding: 20px; box-sizing: border-box;
-            cursor: default; /* Базовый курсор */
+            /* КУРСОР: Используем favicon.png как курсор! */
+            cursor: url('/favicon.png'), auto;
         }
         
-        /* Кастомный курсор для интерактивных элементов */
-        a, button, input, .theme-switch { 
-            cursor: pointer; 
+        /* Для всех кнопок и полей ввода ставим такой же кастомный курсор */
+        a, button, input, .theme-switch, .tag, details, summary { 
+            cursor: url('/favicon.png'), pointer !important; 
         }
 
         .theme-switch { position: absolute; top: 20px; right: 20px; background: var(--container-bg); border: 2px solid var(--accent-color); padding: 10px; border-radius: 50px; font-size: 20px; transition: 0.3s; z-index: 10; }
         .theme-switch:hover { transform: scale(1.1); }
 
-        .container { text-align: center; background: var(--container-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; transition: background 0.3s; box-sizing: border-box; }
+        .container { text-align: center; background: var(--container-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; transition: background 0.3/s; box-sizing: border-box; }
         h1 { color: var(--text-color); margin-bottom: 20px; font-size: clamp(24px, 5vw, 32px); }
         
         input { width: 100%; max-width: 400px; padding: 12px; border: 2px solid var(--input-border); border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; background: var(--container-bg); color: var(--text-color); box-sizing: border-box; }
@@ -69,18 +70,17 @@
         .tag { background: var(--platform-bg); color: var(--platform-text); padding: 4px 10px; border-radius: 6px; font-size: 13px; border: 1px solid var(--input-border); transition: all 0.2s; }
         .tag:hover { background: var(--accent-color); color: white; }
 
-        /* Стили для FAQ */
         .faq-section { margin-top: 30px; text-align: left; border-top: 1px solid var(--input-border); padding-top: 20px; }
         .faq-title { font-weight: bold; color: var(--text-color); margin-bottom: 15px; text-align: center; }
-        details { background: var(--platform-bg); padding: 10px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; border: 1px solid var(--input-border); }
+        details { background: var(--platform-bg); padding: 10px; border-radius: 10px; margin-bottom: 10px; transition: 0.3s; border: 1px solid var(--input-border); }
         details:hover { border-color: var(--accent-color); }
         summary { font-weight: bold; color: var(--text-color); outline: none; }
         .faq-content { padding: 10px 0 0 0; font-size: 14px; color: var(--platform-text); line-height: 1.5; }
     </style>
 </head>
-<body>
-    <!-- Звук клика (используем короткий системный звук из сети) -->
-    <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+<body onclick="initAudio()">
+    <!-- Звук клика -->
+    <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3" preload="auto"></audio>
 
     <div class="theme-switch" onclick="toggleTheme(); playClick();" title="Сменить тему">🌓</div>
     
@@ -131,7 +131,6 @@
             </div>
         </div>
 
-        <!-- FAQ РАЗДЕЛ -->
         <div class="faq-section">
             <p class="faq-title">Часто задаваемые вопросы</p>
             <details onclick="playClick()">
@@ -150,6 +149,15 @@
     </div>
 
     <script>
+        // Разблокировка звука при первом клике по странице
+        function initAudio() {
+            const sound = document.getElementById('clickSound');
+            sound.play().then(() => {
+                sound.pause();
+                sound.currentTime = 0;
+            }).catch(e => console.log("Audio blocked"));
+        }
+
         function toggleTheme() {
             const body = document.body;
             const currentTheme = body.getAttribute('data-theme');
@@ -158,8 +166,10 @@
 
         function playClick() {
             const sound = document.getElementById('clickSound');
-            sound.currentTime = 0;
-            sound.play().catch(e => {}); // Игнорируем ошибку, если браузер блокирует автозвук
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => {});
+            }
         }
 
         const form = document.getElementById('downloadForm');
