@@ -7,41 +7,114 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
         :root {
-            --bg-color: #f0f2f5; --container-bg: #ffffff; --text-color: #333333;
-            --input-border: #ddd; --accent-color: #ff0000; --accent-hover: #cc0000;
-            --platform-bg: #f1f3f5; --platform-text: #555;
+            --accent-color: #ff0000;
+            --accent-hover: #cc0000;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --text-color: #333;
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --platform-bg: rgba(255, 255, 255, 0.5);
+            --platform-text: #555;
         }
+
         [data-theme="dark"] {
-            --bg-color: #18191a; --container-bg: #242526; --text-color: #e4e6eb;
-            --input-border: #3a3b3c; --accent-color: #ff4d4d; --accent-hover: #ff3333;
-            --platform-bg: #3a3b3c; --platform-text: #b0b3b8;
+            --accent-color: #ff4d4d;
+            --accent-hover: #ff3333;
+            --glass-bg: rgba(36, 37, 38, 0.7);
+            --text-color: #e4e6eb;
+            --input-bg: rgba(58, 59, 60, 0.9);
+            --platform-bg: rgba(58, 59, 60, 0.5);
+            --platform-text: #b0b3b8;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; padding: 20px; box-sizing: border-box; }
-        .theme-switch { position: absolute; top: 20px; right: 20px; cursor: pointer; background: var(--container-bg); border: 2px solid var(--accent-color); padding: 10px; border-radius: 50px; font-size: 20px; transition: 0.3s; z-index: 10; }
-        .container { text-align: center; background: var(--container-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; transition: background 0.3s; box-sizing: border-box; }
-        .counter { font-size: 14px; color: #888; margin-bottom: 10px; display: block; }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;
+            transition: all 0.5s ease;
+            /* ЖИВОЙ ГРАДИЕНТНЫЙ ФОН */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-color);
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .theme-switch { 
+            position: absolute; top: 20px; right: 20px; cursor: pointer; 
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 2px solid var(--accent-color); padding: 10px; 
+            border-radius: 50px; font-size: 20px; transition: 0.3s; z-index: 10; 
+        }
+        .theme-switch:hover { transform: scale(1.1) rotate(15deg); }
+
+        /* ЭФФЕКТ СТЕКЛА (GLASSMORPHISM) */
+        .container { 
+            text-align: center; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            padding: 40px; 
+            border-radius: 30px; 
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+            width: 100%; max-width: 600px; 
+            transition: all 0.3s; box-sizing: border-box; 
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { color: var(--text-color); margin-bottom: 20px; font-size: clamp(24px, 5vw, 32px); font-weight: 800; }
+        
+        .counter { font-size: 14px; color: var(--text-color); opacity: 0.8; margin-bottom: 10px; display: block; }
         .count-num { color: var(--accent-color); font-weight: bold; }
-        h1 { color: var(--text-color); margin-bottom: 20px; font-size: clamp(24px, 5vw, 32px); }
+
         .mode-switch { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .mode-btn { padding: 8px 15px; background: var(--platform-bg); color: var(--platform-text); border: 2px solid var(--input-border); border-radius: 8px; cursor: pointer; font-size: 14px; transition: 0.3s; }
-        .mode-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-        input { width: 100%; max-width: 400px; padding: 12px; border: 2px solid var(--input-border); border-radius: 10px; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; background: var(--container-bg); color: var(--text-color); box-sizing: border-box; }
-        input:focus { border-color: var(--accent-color); }
-        button { padding: 12px 25px; background: var(--accent-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; min-width: 200px; }
-        button:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3); }
+        .mode-btn { 
+            padding: 8px 15px; background: var(--platform-bg); color: var(--platform-text); 
+            border: 1px solid var(--input-border); border-radius: 10px; cursor: pointer; 
+            font-size: 14px; transition: 0.3s; 
+        }
+        .mode-btn.active { background: var(--accent-color); color: white; transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        input { 
+            width: 100%; max-width: 400px; padding: 15px; border: 2px solid transparent; 
+            border-radius: 15px; font-size: 16px; margin-bottom: 20px; outline: none; 
+            transition: 0.3s; background: var(--input-bg); color: var(--text-color); 
+            box-sizing: border-box; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        input:focus { border-color: var(--accent-color); transform: scale(1.02); }
+
+        button { 
+            padding: 15px 30px; background: var(--accent-color); color: white; 
+            border: none; border-radius: 15px; cursor: pointer; font-size: 18px; 
+            font-weight: bold; transition: all 0.3s; min-width: 200px;
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+        }
+        button:hover { background: var(--accent-hover); transform: translateY(-3px) scale(1.05); box-shadow: 0 15px 25px rgba(255, 0, 0, 0.4); }
+
         #loader-container { display: none; margin: 20px auto; text-align: center; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        .progress-bar { width: 100%; background: var(--platform-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; position: relative; }
-        .progress-fill { width: 0%; height: 100%; background: var(--accent-color); transition: width 0.2s; }
+        .spinner { border: 4px solid rgba(0,0,0,0.1); border-top: 4px solid var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .progress-bar { width: 100%; background: rgba(0,0,0,0.1); height: 12px; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { width: 0%; height: 100%; background: var(--accent-color); transition: width 0.2s; box-shadow: 0 0 10px var(--accent-color); }
         #progress-text { font-size: 14px; color: var(--text-color); margin-top: 5px; display: block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .platforms-section { margin-top: 30px; text-align: left; border-top: 1px solid var(--input-border); padding-top: 20px; }
-        .platforms-section p { font-weight: bold; color: var(--text-color); margin-bottom: 10px; text-align: center; }
+
+        .platforms-section { margin-top: 30px; text-align: left; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px; }
+        .platforms-section p { font-weight: bold; color: var(--text-color); margin-bottom: 15px; text-align: center; }
         .category { margin-bottom: 15px; }
-        .category-title { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        .category-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; display: block; text-align: center; }
         .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-        .tag { background: var(--platform-bg); color: var(--platform-text); padding: 4px 10px; border-radius: 6px; font-size: 13px; border: 1px solid var(--input-border); transition: all 0.2s; }
-        .tag:hover { background: var(--accent-color); color: white; }
+        .tag { background: var(--platform-bg); color: var(--platform-text); padding: 6px 12px; border-radius: 10px; font-size: 13px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
+        .tag:hover { background: var(--accent-color); color: white; transform: translateY(-3px); }
     </style>
 </head>
 <body>
@@ -51,7 +124,7 @@
         <h1>Скачать видео</h1>
         <div class="mode-switch">
             <button type="button" class="mode-btn active" id="linkMode" onclick="setMode('link')">По ссылке</button>
-            <button type="button" class="mode-btn" id="searchMode" onclick="setMode('search')">Поиск</button>
+            <button type="button" class="mode-btned" id="searchMode" onclick="setMode('search')">Поиск</button>
         </div>
         <form id="downloadForm" action="/analyze" method="post">
             <input type="hidden" name="mode" id="modeInput" value="link">
@@ -83,7 +156,7 @@
             document.getElementById('searchMode').classList.toggle('active', mode === 'search');
             document.getElementById('urlInput').placeholder = mode === 'link' ? 'Вставьте ссылку на видео...' : 'Введите запрос для поиска...';
         }
-        document.getElementById('downloadForm').onsubmit = function(e) {
+        document.getElementById('downloadForm').onsubmit = function() {
             const mode = document.getElementById('modeInput').value;
             const urlInput = document.getElementById('urlInput');
             if (mode === 'search') {
@@ -99,7 +172,7 @@
             const progressFill = document.getElementById('progress-fill');
             const progressText = document.getElementById('progress-text');
             btn.style.display = 'none';
-            loaderContainer.style.display = 'block';
+            loaderContainer.style.//display = 'block';
             let width = 0;
             const interval = setInterval(() => {
                 if (width >= 95) { clearInterval(interval); } 
