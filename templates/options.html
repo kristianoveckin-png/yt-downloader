@@ -6,69 +6,56 @@
     <title>Выбор качества</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/png">
     <style>
-        :root {
-            --bg-color: #f0f2f5; --container-bg: #ffffff; --text-color: #333333;
-            --input-border: #ddd; --accent-color: #28a745; --accent-hover: #218838;
-            --share-color: #007bff; --share-hover: #0056b3; --audio-color: #1db954;
-        }
-        [data-theme="dark"] {
-            --bg-color: #18191a; --container-bg: #242526; --text-color: #e4e6eb;
-            --input-border: #3a3b3c; --accent-color: #34d058; --accent-hover: #2eb84d;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; transition: all 0.5s ease;
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; 
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            color: var(--text-color);
+            color: #fff;
         }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .container { 
             text-align: center; 
-            background: var(--glass-bg, rgba(255,255,255,0.7)); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
             padding: 30px; 
             border-radius: 30px; 
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
             width: 100%; max-width: 600px; 
             animation: fadeInUp 0.8s ease-out;
             box-sizing: border-box;
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        h2 { color: var(--text-color); margin-bottom: 10px; font-size: clamp(20px, 5vw, 24px); }
-        .video-title { color: #888; font-size: 14px; margin-bottom: 25px; font-style: italic; word-wrap: break-word; }
-        .share-section { display: flex; justify-content: space-around; align-items: center; background: rgba(0,0,0,0.05); padding: 15px; border-radius: 15px; margin-bottom: 25px; border: 1px solid var(--input-border); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { color: #fff; margin-bottom: 10px; font-size: clamp(20px, 5vw, 24px); }
+        .video-title { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 25px; font-style: italic; word-wrap: break-word; }
+        .share-section { display: flex; justify-content: space-around; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
         .qr-code { width: 80px; height: 80px; border: 2px solid white; border-radius: 5px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        .share-btn { padding: 10px 15px; background: var(--share-color); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
-        .share-btn:hover { background: var(--share-hover); transform: scale(1.05); }
-        .audio-section { background: rgba(40, 167, 69, 0.1); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(40, 167, 69, 0.3); }
-        .btn-audio { padding: 12px 20px; background: var(--audio-color); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; }
-        .btn-audio:hover { transform: scale(1.02); background: #1aa34a; box-shadow: 0 5px 15px rgba(29, 185, 84, 0.4); }
+        .share-btn { padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .share-btn:hover { background: #0056b3; transform: scale(1.05); }
+        .audio-section { background: rgba(40, 167, 69, 0.2); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(40, 167, 69, 0.3); }
+        .btn-audio { padding: 12px 20px; background: #1db954; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; }
+        .btn-audio:hover { transform: scale(1.02); background: #1aa3//ed; box-shadow: 0 5px 15px rgba(29, 185, 84, 0.4); }
         .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; min-width: 300px; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--input-border); text-align: left; }
-        th { background-color: rgba(0,0,0,0.05); color: var(--text-color); }
-        .btn-download { padding: 8px 15px; background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 14px; font-weight: bold; }
-        .btn-download:hover { background: var(--accent-hover); transform: scale(1.05); }
-        .btn-back { display: inline-block; margin-top: 20px; text-decoration: none; color: #888; font-size: 14px; transition: 0.3s; }
-        .btn-back:hover { color: var(--text-color); }
+        th, td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
+        th { background-color: rgba(0,0,0,0.2); color: #fff; }
+        .btn-download { padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 14px; font-weight: bold; }
+        .btn-download:hover { background: #218838; transform: scale(1.05); }
+        .btn-back { display: inline-block; margin-top: 20px; text-decoration: none; color: rgba(255,255,255,0.6); font-size: 14px; transition: 0.3s; }
+        .btn-back:hover { color: #fff; }
         #download-loader { display: none; margin: 20px auto; text-align: center; }
-        .spinner { border: 4px solid rgba(0,0,0,0.1); border-top: 4px solid var(--accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        .progress-bar { width: 100%; background: rgba(0,0,0,0.1); height: 12px; border-radius: 10px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { width: 0%; height: 100%; background: var(--accent-color); transition: width 0.2s; box-shadow: 0 0 10px var(--accent-color); }
-        #progress-text { font-size: 14px; color: var(--text-color); margin-top: 5px; display: block; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #28a745; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .progress-bar { width: 100%; background: rgba(0,0,0,0.2); height: 12px; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { width: 0%; height: 100%; background: #28a745; transition: width 0.2s; box-shadow: 0 0 10px #28a745; }
+        #progress-text { font-size: 14px; color: #fff; margin-top: 5px; display: block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body data-theme="light">
+<body>
     <div class="container">
         <h2 id="page-title">Выберите формат</h2>
         <div class="video-title" id="video-title">{{ title }}</div>
@@ -79,7 +66,7 @@
         </div>
         <div class="share-section">
             <div style="text-align: left;">
-                <span style="font-size: 12px; color: #888; display: block; margin-bottom: 5px;">Скачать на телефон:</span>
+                <span style="font-size: 12px; color: rgba(255,255,255,0.6); display: block; margin-bottom: 5px;">Скачать на телефон:</span>
                 <img class="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://yt-downloader-14zn.onrender.com/analyze?url={{ url }}" alt="QR Code">
             </div>
             <button class="share-btn" onclick="copyLink()">🔗 Поделиться ссылкой</button>
