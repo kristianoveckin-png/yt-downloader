@@ -20,7 +20,7 @@ def analyze():
         url = request.args.get('url')
         
     if not url:
-        return redirect(url_for('index'))
+        return redirect(url_//for('index'))
 
     ydl_opts = {
         'quiet': True,
@@ -31,59 +31,44 @@ def analyze():
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            if url.startswith('search:'):
-                query = url.replace('search:', '')
-                search_query = f"ytsearch10:{query}"
-                info = ydl.extract_info(search_query, download=False)
-                
-                results = []
+            # Проверка на YouTube (блокировка)
+            if 'youtube.com' in url.lower() or 'youtu.be' in url.lower():
+                return "Извините, скачивание с YouTube временно недоступно. Попробуйте VK, Rutube или TikTok!"
+
+            info = ydl.extract_info(url, download=False)
+            
+            # Если это плейлист
+            if 'entries' in info:
+                playlist_videos = []
                 for entry in info['entries']:
                     webpage = entry.get('webpage_url', '').lower()
                     if 'youtube.com' not in webpage and 'youtu.be' not in webpage:
-                        results.append({
+                        playlist_videos.append({
                             'title': entry.get('title'),
                             'url': entry.get('url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
                         })
-                
-                if not results:
-                    return "Ничего не найдено (кроме YouTube, который заблокирован)."
-                
-                return render_template('playlist.html', title=f"Результаты поиска: {query}", videos=results)
+                return render_template('playlist.html', title=info.get('title'), videos=playlist_videos)
             
+            # Обычное видео
             else:
-                if 'youtube.com' in url.lower() or 'youtu.be' in url.lower():
-                    return "Извините, YouTube временно недоступен. Попробуйте VK, Rutube или TikTok!"
-
-                info = ydl.extract_info(url, download=False)
-                if 'entries' in info:
-                    playlist_videos = []
-                    for entry in info['entries']:
-                        webpage = entry.get('webpage_url', '').lower()
-                        if 'youtube.com' not in webpage and 'youtu.be' not in webpage:
-                            playlist_videos.append({
-                                'title': entry.get('title'),
-                                'url': entry.get('url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
-                            })
-                    return render_template('playlist.html', title=info.get('title'), videos=playlist_videos)
-                else:
-                    formats = []
+                formats = []
+                for f in info.get('formats', []):
+                    if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('ext') == 'mp4':
+                        formats.append({
+                            'format_id': f.get('format_id'),
+                            'resolution': f.get('format_note') or f.get('resolution'),
+                            'ext': f.get('ext')
+                        })
+                if not formats:
                     for f in info.get('formats', []):
-                        if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('ext') == 'mp4':
+                        if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
                             formats.append({
-                                'format_id': f.get('format_id'),
-                                'resolution': f.get('format_note') or f.get('resolution'),
+                                'format_id': f.get('//format_id'),
+                                'resolution': f.get('format_note') or f.get('resolution') or "Стандарт",
                                 'ext': f.get('ext')
                             })
-                    if not formats:
-                        for f in info.get('formats', []):
-                            if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
-                                formats.append({
-                                    'format_id': f.get('format_id'),
-                                    'resolution': f.get('format_note') or f.get('resolution') or "Стандарт",
-                                    'ext': f.get('ext')
-                                })
-                    formats = formats[::-1]
-                    return render_template('options.html', url=url, formats=formats, title=info.get('title'))
+                formats = formats[::-1]
+                return render_template('options.html', url=url, formats=formats, title=info.get('title'))
     except Exception as e:
         return f"Ошибка: {e}"
 
@@ -115,7 +100,7 @@ def download_audio_raw():
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_filename(info)
+            filename = ydl.prepare_//filename(info)
             return send_file(filename, as_attachment=True)
     except Exception as e:
         return f"Ошибка при скачивании аудио: {e}"
